@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans.xsd 
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/aop 
+			http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/tx 
+			http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-lazy-init="false">
+	
+	<!-- 设置配置文件支持 -->
+	<bean id="propertyConfigurer"
+		class="snt.common.web.util.PropertyConfigurer">
+		<property name="locations" >
+			<list>
+				<value>WEB-INF/props/jdbc.properties</value>
+				<value>WEB-INF/props/mail.properties</value>
+				<value>WEB-INF/props/misc.properties</value>
+			</list>
+		</property>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK" />
+	</bean>
+	
+	<!-- 开启注解 在java中使用@Autowired或者@Resource注解方式进行装配，这两个注解的区别是：@Autowird默认按类型装配 
+		@Resource默认按名称装配，当找不到与名称匹配的bean才会按类型装配 -->
+	<context:annotation-config />
+	<!-- 定义扫描包路径 它可以在类路径地下寻找标注了@Component、@Service、@Controller、@Repository注解的类， 
+		并把这些类纳入进spring容易管理中 -->
+	<context:component-scan base-package="snt.qconline.business" />
+
+	<!-- AOP自动封装 Advisor auto proxy 该类实现了接口BeanPostProcessor, 自动代理同一个或者相关的上下文中出现的Advisor中的Advice-->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+	<!-- 数据源支持 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="maxPoolSize" value="100" />
+		<property name="minPoolSize" value="2" />
+		<property name="acquireIncrement" value="5" />
+		<property name="description" value="RiskAnalysis Datasource" />
+	</bean>
+
+	<bean id="commonDAO" class="snt.common.dao.base.CommonDAO">
+		<property name="dataSource" ref="dataSource" />
+		<property name="dialect">
+			<bean class="snt.common.dao.dialect.MySQLDialect" />
+		</property>
+	</bean>
+
+	<!-- Common Dao Service -->
+	<bean class="snt.common.dao.base.CommonDAOServiceImpl" id="commonDAOService">
+		<property name="commonDAO" ref="commonDAO" />
+	</bean>	
+	<!-- Primary Key Seed -->
+	<bean class="snt.common.dao.base.PrimaryKeySeedImpl"
+		id="pkSeedService">
+		<property name="commonDAO" ref="commonDAO" />
+		<property name="seedTable" value="${primarykey.seedtable}" />
+		<property name="pkFld" value="${primarykey.seedpkfld}" />
+		<property name="seedFld" value="${primarykey.seedfld}" />
+		<property name="verFld" value="${primarykey.seedver}" />
+	</bean>
+	<bean class="snt.common.dao.base.PrimaryKeyGeneratorInit">
+		<property name="keyInterval"
+			value="${primarykey.applyinterval}" />
+		<property name="primaryKeySeed" ref="pkSeedService" />
+	</bean>	
+
+	<!-- 数据库事务支持 -->
+	<bean id="transactionAdvisor" class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+		<property name="transactionInterceptor" ref="txInterceptor" />
+	</bean>
+	
+	<!-- Transaction Interceptor -->
+	<bean id="txInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="txManager" />
+		<property name="transactionAttributeSource">
+			<bean
+				class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+		</property>
+	</bean>
+	
+	<!-- Transaction Manager -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- Mail Sender -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" >
+		<property name="host" value="${mail.host}" />
+		<property name="javaMailProperties">
+        <props>
+                <prop key="mail.smtp.auth">true</prop>
+        </props>
+  		</property> 
+  		<property name="username" value="${mail.csemail}"/>
+		<property name="password" value="${mail.password}"/>
+		<property name="defaultEncoding" value="${mail.defaultEncoding}" />
+	</bean>
+	
+	<!-- Velocity Initializer -->
+	<bean id="velocityInitializer" class="snt.common.velocity.VelocityInitializer" lazy-init="true">
+		<property name="templateDir" value="${vmtemplateDir.dir}" />
+	</bean>
+	
+	<!-- ExecutePool -->
+	<bean id="executorPool" class="snt.common.util.pool.ExecutorPool" lazy-init="false" destroy-method="destory">
+		<property name="threadCount" value="8"/>
+	</bean>
+	
+	<!-- Mail Service Provider 
+	<bean class="snt.common.mail.MailServiceProvider" id="mailServiceProvider">
+		<property name="mailSender" ref="mailSender" />
+	</bean>
+	-->
+	
+	<!-- Cache Provider
+	<bean class="snt.infiniticss.cache.CacheProvider" id="cacheProvider">
+		<property name="commonDAO" ref="commonDAO" />
+	</bean>
+	-->
+	
+	<!--
+    #########################################################################
+    #                           定时任务调度                                                                                       #
+    #########################################################################
+    -->
+<!--     <bean id="quartzTimerTask" class="snt.das.util.quartz.QuartzTimerTaskImpl">
+    	<property name="commonDao" ref="commonDAO" />
+    </bean>
+    
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" id="scheduler">
+	<property name="triggers">
+		<list>
+			去掉定时任务 
+			
+			<ref bean="cronTrigger"/>
+			<ref bean="batchUploadCronTrigger"/>
+		     
+		     <ref bean="statisticTrigger"/>
+		</list>
+	</property>
+	</bean>
+	 -->
+	<!-- 这部分是验证码生成的配置
+    <bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">  
+            <property name="config">  
+                <bean class="com.google.code.kaptcha.util.Config">  
+                    <constructor-arg>  
+                        <props>  
+                            <prop key="kaptcha.border">no</prop>  
+                            <prop key="kaptcha.border.color">105,179,90</prop>  
+                            <prop key="kaptcha.textproducer.font.color">black</prop>  
+                            <prop key="kaptcha.image.width">200</prop>  
+                            <prop key="kaptcha.textproducer.font.size">90</prop>  
+                            <prop key="kaptcha.image.height">95</prop>  
+                            <prop key="kaptcha.session.key">code</prop>  
+                            <prop key="kaptcha.textproducer.char.length">4</prop>  
+                            <prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>  
+                            <prop key="kaptcha.obscurificator.impl">com.google.code.kaptcha.impl.WaterRipple</prop>
+                            
+                        </props>  
+                    </constructor-arg>  
+                </bean>  
+            </property>  
+        </bean> 
+	 -->
+</beans>

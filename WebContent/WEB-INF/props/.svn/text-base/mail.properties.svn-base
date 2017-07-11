@@ -1,0 +1,16 @@
+mail.defaultEncoding=GBK
+mail.host=sinotrust.cn
+mail.subject=\u7cfb\u7edf\u90ae\u4ef6:\u627e\u56de\u5bc6\u7801
+mail.csemail=dev@sinotrust.cn
+mail.password=SIno7589
+
+#mail.csemail=sinotrust@sinotrust.cn
+#mail.password=SinoBiS5926
+
+mail.csemailname=\u65b0\u534e\u4fe1\u5ba2\u670d
+mail.csemailname_en=Sinotrust Customer Service
+mail.cstelephone=010-58671888
+mail.servicefax=010-58671800
+mail.sendName=DAudit
+
+mail.sendTestEmailAddress=wuzhenfang@sinotrust.cn;

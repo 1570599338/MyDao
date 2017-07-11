@@ -1,0 +1,10 @@
+#jdbc.driver=net.sourceforge.jtds.jdbc.Driver
+#jdbc.url=jdbc:jtds:sqlserver://192.168.7.160/demo
+#jdbc.username=sa
+#jdbc.password=123
+
+jdbc.driver=org.gjt.mm.mysql.Driver
+jdbc.url=jdbc:mysql://localhost:3306/cp?useUnicode=true&characterEncoding=utf8
+jdbc.username=root
+jdbc.password=root
+

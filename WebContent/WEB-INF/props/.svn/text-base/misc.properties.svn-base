@@ -1,0 +1,26 @@
+#\u5bfc\u51fa\u7684\u4e34\u65f6\u6587\u4ef6\u8def\u5f84
+vmtemplateDir.dir=${qc.root}vm
+
+#\u4e3b\u952e\u751f\u6210
+primarykey.seedtable=pub_primarykeyseed
+primarykey.seedpkfld=pk_id
+primarykey.seedfld=seed
+primarykey.seedver=ver
+primarykey.applyinterval=1
+
+#\u4e0a\u4f20\u6587\u4ef6   \u62a5\u544a\u56fe\u7247\u6587\u4ef6
+upload.picDir=${qc.root}upload\\pic
+
+#\u4e0a\u4f20\u6587\u4ef6   \u62a5\u544a\u9644\u4ef6\u6587\u4ef6
+upload.fileDir=${qc.root}upload\\file
+
+tempExcel.userInfo=${qc.root}templateExcel/uploadUserInfoTemp.xls
+upload.fileDir=${qc.root}upload\\file
+
+#经销店管理模板下载地址
+tempExcel.dealerTemp=${qc.root}templateExcel\\dealerManagerTemp.xls
+
+#执行路线信息模板下载地址
+tempExcel.routeTemp=${qc.root}templateExcel\\routeTemp.xls
+
+
