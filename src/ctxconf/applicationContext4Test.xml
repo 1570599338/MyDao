@@ -22,9 +22,9 @@
 	<!-- 数据源支持 -->
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver" />
-		<property name="jdbcUrl" value="jdbc:jtds:sqlserver://127.0.0.1/QCCenter" />
+		<property name="jdbcUrl" value="jdbc:jtds:sqlserver://123.56.193.225/dscss_test" />
 		<property name="user" value="sa" />
-		<property name="password" value="123" />
+		<property name="password" value="f@ngming1" />
 		
 		<!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
 		<property name="acquireIncrement" value="5" />
