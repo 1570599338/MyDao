@@ -1,6 +1,9 @@
 package com.lquan.test;
 
+import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -11,6 +14,7 @@ import com.lquan.Bean.User;
 
 import snt.common.dao.base.AutoAssembleConfig;
 import snt.common.dao.base.CommonDAO;
+import snt.common.dao.base.PrimaryKeyGenerator;
 
 /**
  * 此方法主要测试update方法
@@ -46,6 +50,10 @@ public class TestUpdate {
 		
 	}
 	
+	/**
+	 * 将参数拼接到SQL语句
+	 * 或不带参数的update的执行
+	 */
 	@Test
 	public  void testQueryNoargs() {
 		
@@ -69,7 +77,72 @@ public class TestUpdate {
 	
 	
 	
+	/**
+	 * 测试带有冒号的是update的语句
+	 */
+	@Test
+	public void testUpdateColonStyle()throws Exception{
+		String sql = "select * from t_user where pk_id=2";
+		List<User> list = commonDao.queryForPojoList(sql, User.class);
+		for(User u:list){
+			System.out.println("修改前的数据："+ u.getUser_name());
+		}
+		String sqludpate ="update t_user set user_name=:name where pk_id=:id";
+		Map<String,Object> argMap = new HashMap<String,Object>();
+		argMap.put("name", "张三s");
+		argMap.put("id", 2);
+		int xx = commonDao.update(sqludpate, argMap);
+		String sqlinsert ="insert into t_user(pk_id,log_name,user_name,company,email,password,role)"
+				+ " values(:pk_id,:log_name,:user_name,:company,:email,:password,:role)";
+		
+		Map<String,Object> argMapInsert = new HashMap<String,Object>();
+		argMapInsert.put("pk_id", PrimaryKeyGenerator.getLongKey());
+		argMapInsert.put("log_name", "insertDemo");
+		argMapInsert.put("user_name", "user_name");
+		argMapInsert.put("company", "公司");
+		argMapInsert.put("email", "110@qq.com");
+		argMapInsert.put("password", "123456");
+		argMapInsert.put("role", "A");
+		int xinsert = commonDao.update(sqlinsert, argMapInsert);
+		
+		List<User> listx = commonDao.queryForPojoList(sql, User.class);
+		for(User u:list){
+			System.out.println("修改后的数据："+ u.getUser_name());
+		}
+	}
 	
+	
+	/**
+	 * 测试update(String sql, Object[] args)方法
+	 * args	参数
+	 */
+	@Test
+	public void testUpdateArgForObjects(){
+		String sql ="update t_user set user_name=? where pk_id=?";
+		int a = commonDao.update(sql, new Object[]{"测试data",2});
+		System.out.println(a);
+		
+		String sqlInsert = "insert into t_user(pk_id,log_name,user_name,company,email,password,role) values(?,?,?,?,?,?,?) ";
+		int b = commonDao.update(sqlInsert,new Object[]{PrimaryKeyGenerator.getLongKey(),"登录名","用户名X","公司X","111@qq.com","12312","F"});
+	}
+	
+	/**
+	 * 测试update(String sql, Object[] args, int[] argTypes)方法
+	 * args	参数
+	 * argTypes	参数类型
+	 */
+	@Test
+	public void test5(){
+		String sql ="update t_user set user_name=? where pk_id=?";
+		int a = commonDao.update(sql, new Object[]{"测试dataargTypes",2},new int[]{Types.VARCHAR,Types.INTEGER});
+		System.out.println(a);
+		
+		String sqlInsert = "insert into t_user(pk_id,log_name,user_name,company,email,password,role) values(?,?,?,?,?,?,?) ";
+		int b = commonDao.update(sqlInsert,new Object[]{PrimaryKeyGenerator.getLongKey(),"登录名argTypes","用户名XargTypes","公司XargTypes","112@qq.com","12312","F"},
+				new int[]{Types.LONGVARBINARY,Types.VARCHAR,Types.VARCHAR,Types.VARCHAR,Types.VARCHAR,Types.VARCHAR,Types.VARCHAR});
+		System.out.println(b);
+		
+	}
 	
 	
 	

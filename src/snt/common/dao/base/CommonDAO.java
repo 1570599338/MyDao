@@ -1396,22 +1396,20 @@ public class CommonDAO extends JdbcDaoSupport {
 	 * "update mytable set fld1 = :fld1"
 	 * 
 	 * @param sql
-	 * @param argMap
+	 * @param argMap 参数
 	 * @return 更新记录数
 	 * @throws DataAccessException
 	 */
-	public int update(String sql, Map<String, ?> argMap)
-			throws DataAccessException {
+	public int update(String sql, Map<String, ?> argMap)throws DataAccessException {
 		Object[] sqlAndArgs = getSqlRepairer().repairSqlAndArgs(sql, argMap);
-		return getJdbcTemplate().update((String) sqlAndArgs[0],
-				(Object[]) sqlAndArgs[1]);
+		return getJdbcTemplate().update((String) sqlAndArgs[0],(Object[]) sqlAndArgs[1]);
 	}
 
 	/**
 	 * 执行带参数的sql，参数列表必须按照参数在sql语句中出现的顺序组织。 参数在sql中用"?"表示
 	 * 
 	 * @param sql
-	 * @param args
+	 * @param args 参数 
 	 * @return 更新记录数
 	 * @throws DataAccessException
 	 */
@@ -1430,9 +1428,9 @@ public class CommonDAO extends JdbcDaoSupport {
 	/**
 	 * 执行带参数的sql，参数列表和参数类型必须按照参数在sql语句中出现的顺序组织。 参数在sql中用"?"表示
 	 * 
-	 * @param sql
-	 * @param args
-	 * @param argTypes
+	 * @param sql	SQL语句
+	 * @param args  参数
+	 * @param argTypes 参数的类型
 	 * @return 更新记录数
 	 * @throws DataAccessException
 	 */
